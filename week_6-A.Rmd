@@ -32,11 +32,24 @@ We are learning about sampling this week. We are taking the theory of Chapter 5 
 
 **Prompt:** Without using rep_sample_n(), sample 30 beads at random from the urn five times. The resulting tibble should have two columns: `replicate` (with a value of 1 to 5) and `samp` (a list column in which each item is a tibble with 30 rows sampled, with replacement, from `urn`). Each tibble in `samp` will have the same two columns as `urn`. Hint: `sample_n()` is a very handy function. It will sample a random selection of rows from a tibble which you pass it. Also, use `str()` and `view()` interactively to confirm that your oject looks the way you want.
 
+```{r sc1}
+random_beads <- tibble(replicate = 1:5) %>%
+  mutate(samp = map(replicate, ~ sample_n(urn, size = 30, replace = TRUE)))
+```
+
 
 ## Scene 2
 
 **Prompt:** What is the probability that, if you sample 50 beads at random, there will be more red than blue beads in the sample?
 
+```{r sc2}
+beads_50 <- tibble(replicate = 1:1000) %>%
+  mutate(samp50 = map(replicate, ~sample_n(urn, size = 50, replace = TRUE))) %>%
+  mutate(count_red = map_int(samp50, ~sum(.$color == "red"))) %>%
+  mutate(count_blue = map_int(samp50, ~sum(.$color == "blue"))) %>%
+  mutate(more_red = if_else(count_red > count_blue, TRUE, FALSE)) %>%
+  summarize(prop_true = sum(more_red == TRUE)/n())
+```
 
 
 ## Scene 3
